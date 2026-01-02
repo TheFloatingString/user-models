@@ -10,7 +10,6 @@ Script using Modal, OpenRouter, and TransformerLens for mech interp:
 import modal
 import os
 import json
-from pathlib import Path
 
 # Define Modal image with dependencies
 image = modal.Image.debian_slim(python_version="3.11").pip_install(
@@ -133,9 +132,8 @@ def extract_activations_from_responses(
     """
     import torch
     from transformer_lens import HookedTransformer
-    import numpy as np
 
-    print(f"Loading Gemma model...")
+    print("Loading Gemma model...")
     model = HookedTransformer.from_pretrained(
         "gemma-2-9b",
         device="cuda" if torch.cuda.is_available() else "cpu",
@@ -199,7 +197,7 @@ def train_probe_for_feature(
     """
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+    from sklearn.metrics import accuracy_score, confusion_matrix
     from sklearn.preprocessing import LabelEncoder
     import numpy as np
     import wandb
@@ -315,7 +313,7 @@ def run_probe_experiment(
     conversations = []
     for i, persona in enumerate(personas):
         print(f"\nPersona {i + 1}/{len(personas)}")
-        conv = generate_conversation_with_persona(
+        conv = generate_conversation_with_persona.remote(
             age_range=persona.get("age_range", ""),
             income_range=persona.get("income_range", ""),
             education=persona.get("education", ""),
@@ -336,7 +334,9 @@ def run_probe_experiment(
     print("EXTRACTING ACTIVATIONS")
     print("=" * 50)
 
-    activations, labels = extract_activations_from_responses(conversations, layer_idx)
+    activations, labels = extract_activations_from_responses.remote(
+        conversations, layer_idx
+    )
 
     wandb.log({"num_activations": len(activations)})
 
@@ -350,7 +350,7 @@ def run_probe_experiment(
 
     for feature in features:
         print(f"\nTraining probe for: {feature}")
-        result = train_probe_for_feature(
+        result = train_probe_for_feature.remote(
             activations,
             labels,
             feature,
