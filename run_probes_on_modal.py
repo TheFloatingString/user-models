@@ -309,21 +309,29 @@ def run_probe_experiment(
     print(f"Target layer: {layer_idx}")
     print(f"W&B run: {wandb.run.url}")
 
-    # Generate conversations
+    # Generate conversations in parallel
     print("\n" + "=" * 50)
-    print("GENERATING CONVERSATIONS")
+    print("GENERATING CONVERSATIONS (PARALLEL)")
     print("=" * 50)
 
-    conversations = []
-    for i, persona in enumerate(personas):
-        print(f"\nPersona {i + 1}/{len(personas)}")
-        conv = generate_conversation_with_persona.remote(
+    # Start all conversation generations in parallel
+    print(f"Starting {len(personas)} conversations in parallel...")
+    futures = []
+    for persona in personas:
+        future = generate_conversation_with_persona.spawn(
             age_range=persona.get("age_range", ""),
             income_range=persona.get("income_range", ""),
             education=persona.get("education", ""),
             sex=persona.get("sex", ""),
             visa_status=persona.get("visa_status", ""),
         )
+        futures.append((persona, future))
+
+    # Collect results as they complete
+    conversations = []
+    for i, (persona, future) in enumerate(futures):
+        print(f"Waiting for persona {i + 1}/{len(futures)}...")
+        conv = future.get()
         conversations.append(
             {
                 "persona": persona,
@@ -331,6 +339,7 @@ def run_probe_experiment(
             }
         )
 
+    print(f"Completed all {len(conversations)} conversations")
     wandb.log({"num_conversations": len(conversations)})
 
     # Extract activations

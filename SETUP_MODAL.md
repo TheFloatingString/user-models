@@ -126,9 +126,10 @@ uv run modal run run_probes_on_modal.py \
 
 ## What the Script Does
 
-### 1. Generate Conversations
+### 1. Generate Conversations (Parallel)
 - GPT-4o acts as personas with specific demographics
 - Creates natural multi-turn conversations
+- **Runs in parallel** for all personas simultaneously
 - No explicit demographic mentions
 
 ### 2. Extract Activations
