@@ -39,8 +39,16 @@ image = (
         "python-dotenv>=1.0.0",
         "wandb>=0.16.0",
         "huggingface-hub>=0.20.0",
+        "bitsandbytes>=0.41.0",
+        "accelerate>=0.25.0",
     )
-    .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
+    .pip_install("hf_transfer")
+    .env(
+        {
+            "HF_HUB_ENABLE_HF_TRANSFER": "1",
+            "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True",
+        }
+    )
     .run_function(
         download_model,
         secrets=[modal.Secret.from_name("huggingface-secret")],
@@ -164,10 +172,12 @@ def extract_activations_from_responses(
     if hf_token:
         login(token=hf_token)
 
-    print("Loading Gemma model...")
+    print("Loading Gemma model with 8-bit quantization...")
     model = HookedTransformer.from_pretrained(
         "gemma-2-9b",
         device="cuda" if torch.cuda.is_available() else "cpu",
+        torch_dtype=torch.float16,
+        load_in_8bit=True,
     )
 
     activations = []
@@ -189,6 +199,10 @@ def extract_activations_from_responses(
                 # Mean pool over sequence
                 pooled = layer_acts.mean(dim=1).cpu().numpy()[0]
                 activations.append(pooled)
+
+                # Clear cache to free memory
+                del cache, layer_acts
+                torch.cuda.empty_cache()
 
         # Store labels (demographics)
         labels.append(
