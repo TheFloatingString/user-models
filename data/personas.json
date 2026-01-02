@@ -1,0 +1,84 @@
+{
+  "personas": [
+    {
+      "id": "persona_1",
+      "age_range": "18-25",
+      "income_range": "$0-30,000",
+      "education": "undergrad",
+      "sex": "female",
+      "visa_status": "citizen"
+    },
+    {
+      "id": "persona_2",
+      "age_range": "26-35",
+      "income_range": "$50,000-80,000",
+      "education": "graduate",
+      "sex": "male",
+      "visa_status": "permanent resident"
+    },
+    {
+      "id": "persona_3",
+      "age_range": "36-45",
+      "income_range": "$80,000-120,000",
+      "education": "undergrad",
+      "sex": "female",
+      "visa_status": "citizen"
+    },
+    {
+      "id": "persona_4",
+      "age_range": "46-55",
+      "income_range": "$120,000-200,000",
+      "education": "graduate",
+      "sex": "non-binary",
+      "visa_status": "citizen"
+    },
+    {
+      "id": "persona_5",
+      "age_range": "56-65",
+      "income_range": "$60,000-90,000",
+      "education": "high school",
+      "sex": "male",
+      "visa_status": "citizen"
+    },
+    {
+      "id": "persona_6",
+      "age_range": "18-25",
+      "income_range": "$0-20,000",
+      "education": "high school",
+      "sex": "male",
+      "visa_status": "temporary visa"
+    },
+    {
+      "id": "persona_7",
+      "age_range": "26-35",
+      "income_range": "$200,000-500,000",
+      "education": "graduate",
+      "sex": "female",
+      "visa_status": "citizen"
+    },
+    {
+      "id": "persona_8",
+      "age_range": "36-45",
+      "income_range": "$30,000-50,000",
+      "education": "middle school",
+      "sex": "male",
+      "visa_status": "permanent resident"
+    },
+    {
+      "id": "persona_9",
+      "age_range": "46-55",
+      "income_range": "$40,000-60,000",
+      "education": "high school",
+      "sex": "female",
+      "visa_status": "temporary visa"
+    },
+    {
+      "id": "persona_10",
+      "age_range": "56-65",
+      "income_range": "$0-25,000",
+      "education": "elementary school",
+      "sex": "non-binary",
+      "visa_status": "citizen"
+    }
+  ]
+}
