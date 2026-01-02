@@ -114,7 +114,10 @@ state them."""
     image=image,
     gpu="A10G",
     timeout=1800,
-    secrets=[modal.Secret.from_name("openrouter-secret")],
+    secrets=[
+        modal.Secret.from_name("openrouter-secret"),
+        modal.Secret.from_name("huggingface-secret"),
+    ],
     volumes={VOLUME_PATH: volume},
 )
 def extract_activations_from_responses(
@@ -137,6 +140,7 @@ def extract_activations_from_responses(
     model = HookedTransformer.from_pretrained(
         "gemma-2-9b",
         device="cuda" if torch.cuda.is_available() else "cpu",
+        hf_token=os.environ.get("HF_TOKEN"),
     )
 
     activations = []

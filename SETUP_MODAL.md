@@ -33,7 +33,23 @@ modal token new
 
 This will open a browser window to authenticate.
 
-### 3. Set up Modal Secrets
+### 3. Accept Gemma License on HuggingFace
+
+Gemma-2-9b is a gated model. You must:
+
+1. Go to https://huggingface.co/google/gemma-2-9b
+2. Click "Agree and access repository"
+3. Accept the license terms
+
+### 4. Create HuggingFace Token
+
+1. Go to https://huggingface.co/settings/tokens
+2. Click "New token"
+3. Give it a name (e.g., "modal-gemma")
+4. Select "Read" access
+5. Copy the token
+
+### 5. Set up Modal Secrets
 
 Modal runs in the cloud, so you need to upload your API keys as secrets. These are stored in your `.env` file locally, but need to be copied to Modal.
 
@@ -64,6 +80,14 @@ modal secret create wandb-secret \
   WANDB_API_KEY=xxxxx
 ```
 
+#### HuggingFace Secret
+
+```bash
+# Replace with your HuggingFace token
+modal secret create huggingface-secret \
+  HF_TOKEN=hf_xxxxx
+```
+
 ### Verify Secrets
 
 ```bash
@@ -73,6 +97,7 @@ modal secret list
 You should see:
 - `openrouter-secret`
 - `wandb-secret`
+- `huggingface-secret`
 
 ## Usage
 
