@@ -69,7 +69,7 @@ ASSISTANT_MODEL = "google/gemma-2-9b-it"
 @app.function(
     image=image,
     secrets=[modal.Secret.from_name("openrouter-secret")],
-    timeout=600,
+    timeout=3600,
 )
 def generate_conversation_with_persona(
     age_range: str,
@@ -172,13 +172,14 @@ def extract_activations_from_responses(
     if hf_token:
         login(token=hf_token)
 
-    print("Loading Gemma model with 8-bit quantization...")
+    print("Loading Gemma model in float16...")
     model = HookedTransformer.from_pretrained(
         "gemma-2-9b",
         device="cuda" if torch.cuda.is_available() else "cpu",
-        torch_dtype=torch.float16,
-        load_in_8bit=True,
+        dtype=torch.float16,
     )
+
+    print("Gemma model loaded.")
 
     activations = []
     labels = []
@@ -200,20 +201,23 @@ def extract_activations_from_responses(
                 pooled = layer_acts.mean(dim=1).cpu().numpy()[0]
                 activations.append(pooled)
 
+                # Store labels for this activation
+                labels.append(
+                    {
+                        "age_range": persona.get("age_range", ""),
+                        "income_range": persona.get("income_range", ""),
+                        "education": persona.get("education", ""),
+                        "sex": persona.get("sex", ""),
+                        "visa_status": persona.get("visa_status", ""),
+                    }
+                )
+
                 # Clear cache to free memory
                 del cache, layer_acts
                 torch.cuda.empty_cache()
 
-        # Store labels (demographics)
-        labels.append(
-            {
-                "age_range": persona.get("age_range", ""),
-                "income_range": persona.get("income_range", ""),
-                "education": persona.get("education", ""),
-                "sex": persona.get("sex", ""),
-                "visa_status": persona.get("visa_status", ""),
-            }
-        )
+    print(f"Extracted {len(activations)} activations and {len(labels)} labels")
+    print(f"Activation shape: {activations[0].shape if activations else 'N/A'}")
 
     return activations, labels
 
@@ -254,25 +258,12 @@ def train_probe_for_feature(
     label_encoder = LabelEncoder()
     y = label_encoder.fit_transform(y_raw)
 
-    # Repeat activations for each conversation turn
-    X = []
-    y_expanded = []
-    for i, acts in enumerate(activations):
-        # Handle multiple turns
-        if isinstance(acts, list):
-            for act in acts:
-                X.append(act)
-                y_expanded.append(y[i])
-        else:
-            X.append(acts)
-            y_expanded.append(y[i])
-
-    X = np.array(X)
-    y_expanded = np.array(y_expanded)
+    # Convert activations to numpy array
+    X = np.array(activations)
 
     # Train/test split
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y_expanded, test_size=0.2, random_state=42
+        X, y, test_size=0.2, random_state=42
     )
 
     # Train probe
