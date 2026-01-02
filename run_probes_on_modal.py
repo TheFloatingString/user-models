@@ -11,18 +11,40 @@ import modal
 import os
 import json
 
-# Define Modal image with dependencies
-image = modal.Image.debian_slim(python_version="3.11").pip_install(
-    "transformer-lens>=2.0.0",
-    "torch>=2.0.0",
-    "numpy>=1.24.0",
-    "scikit-learn>=1.3.0",
-    "matplotlib>=3.7.0",
-    "tqdm>=4.65.0",
-    "pandas>=2.0.0",
-    "openai>=1.0.0",
-    "python-dotenv>=1.0.0",
-    "wandb>=0.16.0",
+
+def download_model():
+    """Download and cache Gemma model during image build."""
+    from huggingface_hub import snapshot_download
+
+    print("Downloading Gemma-2-9b model to cache...")
+    snapshot_download(
+        repo_id="google/gemma-2-9b",
+        ignore_patterns=["*.safetensors"],  # Download PyTorch weights
+    )
+    print("Model cached successfully!")
+
+
+# Define Modal image with dependencies and cache model
+image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .pip_install(
+        "transformer-lens>=2.0.0",
+        "torch>=2.0.0",
+        "numpy>=1.24.0",
+        "scikit-learn>=1.3.0",
+        "matplotlib>=3.7.0",
+        "tqdm>=4.65.0",
+        "pandas>=2.0.0",
+        "openai>=1.0.0",
+        "python-dotenv>=1.0.0",
+        "wandb>=0.16.0",
+        "huggingface-hub>=0.20.0",
+    )
+    .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
+    .run_function(
+        download_model,
+        secrets=[modal.Secret.from_name("huggingface-secret")],
+    )
 )
 
 app = modal.App("gemma-linear-probes")
@@ -112,7 +134,7 @@ state them."""
 
 @app.function(
     image=image,
-    gpu="A10G",
+    gpu="A100",  # Need 40GB for Gemma-2-9B
     timeout=1800,
     secrets=[
         modal.Secret.from_name("openrouter-secret"),
@@ -135,12 +157,17 @@ def extract_activations_from_responses(
     """
     import torch
     from transformer_lens import HookedTransformer
+    from huggingface_hub import login
+
+    # Authenticate with HuggingFace
+    hf_token = os.environ.get("HF_TOKEN")
+    if hf_token:
+        login(token=hf_token)
 
     print("Loading Gemma model...")
     model = HookedTransformer.from_pretrained(
         "gemma-2-9b",
         device="cuda" if torch.cuda.is_available() else "cpu",
-        hf_token=os.environ.get("HF_TOKEN"),
     )
 
     activations = []
@@ -266,7 +293,6 @@ def train_probe_for_feature(
 
 @app.function(
     image=image,
-    gpu="A10G",
     timeout=3600,
     secrets=[
         modal.Secret.from_name("openrouter-secret"),

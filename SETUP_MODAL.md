@@ -126,6 +126,12 @@ uv run modal run run_probes_on_modal.py \
 
 ## What the Script Does
 
+### 0. Image Build (One-Time Setup)
+- **Downloads Gemma-2-9b model** during container image build
+- Model is cached in the image (~18GB)
+- Only happens once when the image is built or updated
+- Subsequent runs use the cached model (much faster!)
+
 ### 1. Generate Conversations (Parallel)
 - GPT-4o acts as personas with specific demographics
 - Creates natural multi-turn conversations
@@ -133,7 +139,7 @@ uv run modal run run_probes_on_modal.py \
 - No explicit demographic mentions
 
 ### 2. Extract Activations
-- Loads Gemma-2-9B with TransformerLens
+- Loads Gemma-2-9B with TransformerLens from cache
 - Extracts residual stream activations from specified layer
 - Uses mean pooling over sequence length
 
@@ -170,8 +176,9 @@ The script uses utility functions from `src/`:
 ## GPU Resources
 
 The script uses:
-- **A10G GPU** for activation extraction (requires large model)
-- **T4 GPU** available as fallback
+- **A100 GPU (40GB)** for activation extraction
+- Gemma-2-9B requires ~18GB VRAM + overhead
+- A10G (24GB) is too small - causes OOM errors
 - Configurable timeout (default: 1 hour)
 
 ## Troubleshooting
