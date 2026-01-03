@@ -1,0 +1,37 @@
+[34m[1mwandb[0m: Detected [openai] in use.
+[34m[1mwandb[0m: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+[34m[1mwandb[0m: For more information, check out the docs at: https://weave-docs.wandb.ai/
+============================================================
+REFUSAL RATE FLUENCY EXPERIMENT
+============================================================
+
+Created 42 personas
+Loaded 24 questions
+
+============================================================
+SINGLE-TURN EXPERIMENTS
+============================================================
+Traceback (most recent call last):
+  File "C:\Users\laure\Projects\user-models\run_refusal_experiment.py", line 370, in <module>
+    main()
+  File "C:\Users\laure\Projects\user-models\run_refusal_experiment.py", line 345, in main
+    all_results.update(run_single_turn_experiments(client, personas, questions, wandb))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\laure\Projects\user-models\run_refusal_experiment.py", line 92, in run_single_turn_experiments
+    judgment = judge_refusal(
+               ^^^^^^^^^^^^^^
+  File "C:\Users\laure\Projects\user-models\src\refusal_judge.py", line 58, in judge_refusal
+    response = client.chat.completions.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\laure\Projects\user-models\.venv\Lib\site-packages\openai\_utils\_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\laure\Projects\user-models\.venv\Lib\site-packages\openai\resources\chat\completions\completions.py", line 1192, in create
+    return self._post(
+           ^^^^^^^^^^^
+  File "C:\Users\laure\Projects\user-models\.venv\Lib\site-packages\openai\_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\laure\Projects\user-models\.venv\Lib\site-packages\openai\_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.BadRequestError: Error code: 400 - {'error': {'message': 'Provider returned error', 'code': 400, 'metadata': {'raw': '{\n  "error": {\n    "message": "Invalid \'max_output_tokens\': integer below minimum value. Expected a value >= 16, but got 10 instead.",\n    "type": "invalid_request_error",\n    "param": "max_output_tokens",\n    "code": "integer_below_min_value"\n  }\n}', 'provider_name': 'Azure'}}, 'user_id': 'user_35ocwVSr3Cl6rzscx58FzNOWdqB'}

@@ -107,7 +107,9 @@ def generate_conversation_with_persona(
         num_turns: Number of conversation turns (default: 10)
 
     Returns:
-        List of conversation messages
+        List of conversation messages with correct role labels:
+        - role="assistant": Messages from the AI asking questions
+        - role="user": Responses from the persona (USER side)
     """
     from openai import OpenAI
 
@@ -146,11 +148,11 @@ state them."""
     ]
 
     for i in range(min(num_turns, len(topics))):
-        # Assistant asks question
+        # Assistant asks question (AI interviewer side)
         assistant_msg = topics[i]
         conversation.append({"role": "assistant", "content": assistant_msg})
 
-        # User (GPT-4o persona) responds
+        # User (GPT-4o persona) responds (represents USER in final output)
         response = client.chat.completions.create(
             model=USER_MODEL,
             messages=conversation,
@@ -158,6 +160,7 @@ state them."""
         user_msg = response.choices[0].message.content
         conversation.append({"role": "user", "content": user_msg})
 
+        # Store in output with correct role labels
         messages.append({"role": "assistant", "content": assistant_msg})
         messages.append({"role": "user", "content": user_msg})
 

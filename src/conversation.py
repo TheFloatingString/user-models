@@ -47,7 +47,12 @@ def run_young_person_turn(
     messages: list[dict],
     is_first: bool,
 ) -> str:
-    """Generate young person's message in conversation."""
+    """Generate young person's message in conversation.
+
+    Note: The persona is prompted via 'user' role and responds as
+    'assistant' in its own message history, but these responses
+    represent the USER's side of the conversation.
+    """
     if is_first:
         messages.append(
             {
@@ -59,13 +64,19 @@ life.",
         )
 
     response = call_model(client, model, messages, 0.7)
+    # Response is stored as 'assistant' in young_msgs for API continuity
     messages.append({"role": "assistant", "content": response})
     return response
 
 
 def run_assistant_turn(client: OpenAI, model: str, messages: list[dict]) -> str:
-    """Generate assistant's response in conversation."""
+    """Generate assistant's response in conversation.
+
+    Note: The assistant's last message in its history is the user's
+    question (added as 'user' role), and it responds as 'assistant'.
+    """
     response = call_model(client, model, messages, 0.7)
+    # Response is stored as 'assistant' in asst_msgs for API continuity
     messages.append({"role": "assistant", "content": response})
     return response
 
@@ -79,10 +90,14 @@ def run_exchange(
     is_first: bool,
 ) -> tuple[str, str]:
     """Run exchange between user and assistant with separate models."""
+    # User persona generates a message (stored as 'assistant' in young_msgs)
     young_msg = run_young_person_turn(client, user_model, young_msgs, is_first)
+    # Add to assistant's message history as incoming 'user' message
     asst_msgs.append({"role": "user", "content": young_msg})
 
+    # Assistant generates response (stored as 'assistant' in asst_msgs)
     asst_msg = run_assistant_turn(client, assistant_model, asst_msgs)
+    # Add to user persona's message history as incoming 'user' message
     young_msgs.append({"role": "user", "content": asst_msg})
 
     return young_msg, asst_msg
@@ -99,7 +114,12 @@ def generate_conversation(
     visa_status: str,
     verbose: bool = True,
 ) -> tuple[str, str]:
-    """Generate conversation and return conversation + final estimation."""
+    """Generate conversation and return conversation + final estimation.
+
+    Returns a formatted conversation string where:
+    - "User:" prefix indicates messages from the persona
+    - "Assistant:" prefix indicates responses from the AI assistant
+    """
     if verbose:
         print(separator())
         print(header("TASK 1: Generating conversation with user"))

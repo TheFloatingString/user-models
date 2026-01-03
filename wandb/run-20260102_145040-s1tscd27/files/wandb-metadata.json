@@ -1,0 +1,28 @@
+{
+  "os":  "Windows-11-10.0.26100-SP0",
+  "python":  "CPython 3.12.7",
+  "startedAt":  "2026-01-02T19:50:40.044654Z",
+  "program":  "C:\\Users\\laure\\Projects\\user-models\\run_refusal_experiment.py",
+  "codePath":  "run_refusal_experiment.py",
+  "codePathLocal":  "run_refusal_experiment.py",
+  "git":  {
+    "remote":  "https://github.com/TheFloatingString/user-models.git",
+    "commit":  "daf7f06a07729c2ff37ecd9277ad159d01da78ae"
+  },
+  "email":  "laurence.w.liang@gmail.com",
+  "root":  "C:\\Users\\laure\\Projects\\user-models",
+  "host":  "DESKTOP-DTOHFQR",
+  "executable":  "C:\\Users\\laure\\Projects\\user-models\\.venv\\Scripts\\python.exe",
+  "cpu_count":  8,
+  "cpu_count_logical":  16,
+  "disk":  {
+    "/":  {
+      "total":  "810008178688",
+      "used":  "640965402624"
+    }
+  },
+  "memory":  {
+    "total":  "14879617024"
+  },
+  "writerId":  "n8qdmskg0ot5gvikvndz7u6thn4kwea5"
+}

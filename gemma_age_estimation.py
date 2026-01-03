@@ -31,7 +31,7 @@ client = OpenAI(
     api_key=os.environ.get("OPENROUTER_API_KEY"),
 )
 
-USER_MODEL = "openai/gpt-4o"
+USER_MODEL = "openai/gpt-5-nano"
 ASSISTANT_MODEL = "google/gemma-2-9b-it"
 
 
